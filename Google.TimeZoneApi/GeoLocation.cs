@@ -1,7 +1,7 @@
 ﻿
 namespace Google.TimeZoneApi
 {
-    public class GeoLocation
+    class GeoLocation
     {
         public double Latitude { get; set; }
         public double Longitude { get; set; }
