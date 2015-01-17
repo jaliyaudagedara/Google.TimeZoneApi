@@ -19,10 +19,12 @@ namespace Google.TimeZoneApi
         /// <summary>
         /// Gets the converted date time based on address.
         /// </summary>
-        /// <param name="address">The destination address.</param>
         /// <param name="dateTime">The date and time to convert.</param>
-        /// <returns>A <see cref="GoogleTimeZoneResult"/>.</returns>
-        public GoogleTimeZoneResult GetConvertedDateTimeBasedOnAddress(string address, DateTime dateTime)
+        /// <param name="address">The destination address, city or country.</param>
+        /// <returns>
+        /// A <see cref="GoogleTimeZoneResult" />.
+        /// </returns>
+        public GoogleTimeZoneResult ConvertDateTime(DateTime dateTime, string address)
         {
             long timestamp = GetUnixTimeStampFromDateTime(TimeZoneInfo.ConvertTimeToUtc(dateTime));
 
@@ -38,10 +40,10 @@ namespace Google.TimeZoneApi
                 }
             }
 
-            return GetConvertedDateTimeBasedOnAddress(this.location, timestamp);
+            return GetConvertedDateTimeBasedOnAddress(timestamp, this.location);
         }
 
-        private GoogleTimeZoneResult GetConvertedDateTimeBasedOnAddress(GeoLocation location, long timestamp)
+        private GoogleTimeZoneResult GetConvertedDateTimeBasedOnAddress(long timestamp, GeoLocation location)
         {
             string requestUri = string.Format("https://maps.googleapis.com/maps/api/timezone/xml?location={0},{1}&timestamp={2}&key={3}", location.Latitude, location.Longitude, timestamp, this.apiKey);
 
