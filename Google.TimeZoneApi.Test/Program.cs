@@ -19,9 +19,9 @@ namespace Google.TimeZoneApi.Test
             string location = "Colombo, Sri Lanka";
             //string location = "Perth, Australia";
             //string location = "Sydney, Australia";
-            //string location = "11111111111111111";
+            //string location = "invalid location";
 
-            GoogleTimeZoneResult googleTimeZoneResult = googleTimeZone.GetConvertedDateTimeBasedOnAddress(location, dt);
+            GoogleTimeZoneResult googleTimeZoneResult = googleTimeZone.ConvertDateTime(dt, location);
             Console.WriteLine("DateTime on the server : " + dt);
             Console.WriteLine("Server time in particular to : " + location);
             Console.WriteLine("TimeZone Id : " + googleTimeZoneResult.TimeZoneId);
