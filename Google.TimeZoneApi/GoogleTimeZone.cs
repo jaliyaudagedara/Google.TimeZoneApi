@@ -43,26 +43,6 @@ namespace Google.TimeZoneApi
             return GetConvertedDateTimeBasedOnAddress(timestamp, this.location);
         }
 
-        private GoogleTimeZoneResult GetConvertedDateTimeBasedOnAddress(long timestamp, GeoLocation location)
-        {
-            string requestUri = string.Format("https://maps.googleapis.com/maps/api/timezone/xml?location={0},{1}&timestamp={2}&key={3}", location.Latitude, location.Longitude, timestamp, this.apiKey);
-
-            XDocument xdoc = GetXmlResponse(requestUri);
-
-            XElement result = xdoc.Element("TimeZoneResponse");
-            XElement rawOffset = result.Element("raw_offset");
-            XElement dstOfset = result.Element("dst_offset");
-            XElement timeZoneId = result.Element("time_zone_id");
-            XElement timeZoneName = result.Element("time_zone_name");
-
-            return new GoogleTimeZoneResult()
-            {
-                DateTime = GetDateTimeFromUnixTimeStamp(Convert.ToDouble(timestamp) + Convert.ToDouble(rawOffset.Value) + Convert.ToDouble(dstOfset.Value)),
-                TimeZoneId = timeZoneId.Value,
-                TimeZoneName = timeZoneName.Value
-            };
-        }
-
         private GeoLocation GetCoordinatesByLocationName(string address)
         {
             string requestUri = string.Format("https://maps.googleapis.com/maps/api/geocode/xml?address={0}&key={1}", Uri.EscapeDataString(address), this.apiKey);
@@ -87,6 +67,37 @@ namespace Google.TimeZoneApi
             else if (status.Value == "REQUEST_DENIED")
             {
                 XElement errorMessage = xdoc.Element("GeocodeResponse").Element("error_message");
+                Debug.Write(errorMessage.Value);
+            }
+            return null;
+        }
+
+        private GoogleTimeZoneResult GetConvertedDateTimeBasedOnAddress(long timestamp, GeoLocation location)
+        {
+            string requestUri = string.Format("https://maps.googleapis.com/maps/api/timezone/xml?location={0},{1}&timestamp={2}&key={3}", location.Latitude, location.Longitude, timestamp, this.apiKey);
+
+            XDocument xdoc = GetXmlResponse(requestUri);
+
+            XElement result = xdoc.Element("TimeZoneResponse");
+            XElement status = result.Element("status");
+
+            if (status.Value == "OK")
+            {
+                XElement rawOffset = result.Element("raw_offset");
+                XElement dstOfset = result.Element("dst_offset");
+                XElement timeZoneId = result.Element("time_zone_id");
+                XElement timeZoneName = result.Element("time_zone_name");
+
+                return new GoogleTimeZoneResult()
+                {
+                    DateTime = GetDateTimeFromUnixTimeStamp(Convert.ToDouble(timestamp) + Convert.ToDouble(rawOffset.Value) + Convert.ToDouble(dstOfset.Value)),
+                    TimeZoneId = timeZoneId.Value,
+                    TimeZoneName = timeZoneName.Value
+                };
+            }
+            else if (status.Value == "OVER_QUERY_LIMIT")
+            {
+                XElement errorMessage = result.Element("error_message");
                 Debug.Write(errorMessage.Value);
             }
             return null;
