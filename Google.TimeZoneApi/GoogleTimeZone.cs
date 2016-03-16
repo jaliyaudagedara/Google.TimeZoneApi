@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Globalization;
 using System.Net;
 using System.Xml.Linq;
 
@@ -24,13 +25,13 @@ namespace Google.TimeZoneApi
         /// <returns>
         /// A <see cref="GoogleTimeZoneResult" />.
         /// </returns>
-        public GoogleTimeZoneResult ConvertDateTime(DateTime dateTime, string address)
+        public GoogleTimeZoneResult GetTimeZoneByAddress(DateTime dateTime, string address)
         {
             long timestamp = GetUnixTimeStampFromDateTime(TimeZoneInfo.ConvertTimeToUtc(dateTime));
 
             if (previousAddress != address)
             {
-                this.location = GetCoordinatesByLocationName(address);
+                this.location = GetCoordinatesByAddress(address);
 
                 previousAddress = address;
 
@@ -40,10 +41,17 @@ namespace Google.TimeZoneApi
                 }
             }
 
-            return GetConvertedDateTimeBasedOnAddress(timestamp, this.location);
+            return GetAddressByCoordinates(timestamp, this.location);
         }
 
-        private GeoLocation GetCoordinatesByLocationName(string address)
+        public GoogleTimeZoneResult GetTimeZoneByLocation(DateTime dateTime, GeoLocation location)
+        {
+            long timestamp = GetUnixTimeStampFromDateTime(TimeZoneInfo.ConvertTimeToUtc(dateTime));
+
+            return GetAddressByCoordinates(timestamp, location);
+        }
+
+        private GeoLocation GetCoordinatesByAddress(string address)
         {
             string requestUri = string.Format("https://maps.googleapis.com/maps/api/geocode/xml?address={0}&key={1}", Uri.EscapeDataString(address), this.apiKey);
 
@@ -58,7 +66,7 @@ namespace Google.TimeZoneApi
                 XElement lat = locationElement.Element("lat");
                 XElement lng = locationElement.Element("lng");
 
-                return new GeoLocation() { Latitude = Convert.ToDouble(lat.Value), Longitude = Convert.ToDouble(lng.Value) };
+                return new GeoLocation() { Latitude = Convert.ToDouble(lat.Value,CultureInfo.InvariantCulture), Longitude = Convert.ToDouble(lng.Value,CultureInfo.InvariantCulture) };
             }
             else if (status.Value == "ZERO_RESULTS")
             {
@@ -72,9 +80,9 @@ namespace Google.TimeZoneApi
             return null;
         }
 
-        private GoogleTimeZoneResult GetConvertedDateTimeBasedOnAddress(long timestamp, GeoLocation location)
+        private GoogleTimeZoneResult GetAddressByCoordinates(long timestamp, GeoLocation location)
         {
-            string requestUri = string.Format("https://maps.googleapis.com/maps/api/timezone/xml?location={0},{1}&timestamp={2}&key={3}", location.Latitude, location.Longitude, timestamp, this.apiKey);
+            string requestUri = string.Format("https://maps.googleapis.com/maps/api/timezone/xml?location={0},{1}&timestamp={2}&key={3}", location.Latitude.ToString(CultureInfo.InvariantCulture), location.Longitude.ToString(CultureInfo.InvariantCulture), timestamp.ToString(CultureInfo.InvariantCulture), this.apiKey);
 
             XDocument xdoc = GetXmlResponse(requestUri);
 
@@ -90,7 +98,7 @@ namespace Google.TimeZoneApi
 
                 return new GoogleTimeZoneResult()
                 {
-                    DateTime = GetDateTimeFromUnixTimeStamp(Convert.ToDouble(timestamp) + Convert.ToDouble(rawOffset.Value) + Convert.ToDouble(dstOfset.Value)),
+                    DateTime = GetDateTimeFromUnixTimeStamp(Convert.ToDouble(timestamp,CultureInfo.InvariantCulture) + Convert.ToDouble(rawOffset.Value,CultureInfo.InvariantCulture) + Convert.ToDouble(dstOfset.Value,CultureInfo.InvariantCulture)),
                     TimeZoneId = timeZoneId.Value,
                     TimeZoneName = timeZoneName.Value
                 };

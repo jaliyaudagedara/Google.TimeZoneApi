@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Google.TimeZoneApi.Test
+namespace Google.TimeZoneApi.Example
 {
     class Program
     {
@@ -10,23 +10,41 @@ namespace Google.TimeZoneApi.Test
 
 
             DateTime dt = DateTime.Now;
-            //DateTime dt = new DateTime(2015, 01, 01, 08, 00, 00, DateTimeKind.Local);
-            //DateTime dt = new DateTime(2015, 01, 01, 08, 00, 00, DateTimeKind.Utc);
+            string address = "Quebec, Canada";
+            GeoLocation location = new GeoLocation()
+            {
+                Latitude = 6.9216318,
+                Longitude = 79.8212827
+            };
+            GeoLocation location2 = new GeoLocation()
+            {
+                Latitude = -19.613200,
+                Longitude = 133.641453
+            };
 
-            //string timeString = "2015-01-01T08:00:00.000+05:30";
-            //DateTime dt = DateTime.Parse(timeString);
 
-            string location = "Colombo, Sri Lanka";
-            //string location = "Perth, Australia";
-            //string location = "Sydney, Australia";
-            //string location = "invalid location";
+            GoogleTimeZoneResult result = googleTimeZone.GetTimeZoneByAddress(dt, address);
+            //Console.WriteLine("DateTime on the server : " + dt);
+            //Console.WriteLine("Server time in particular to : " + address);
+            //Console.WriteLine("TimeZone Id : " + result.TimeZoneId);
+            //Console.WriteLine("TimeZone Name : " + result.TimeZoneName);
+            //Console.WriteLine("Converted DateTime : " + result.DateTime);
 
-            GoogleTimeZoneResult googleTimeZoneResult = googleTimeZone.ConvertDateTime(dt, location);
+            //result = googleTimeZone.GetTimeZoneByLocation(dt, location);
+            //Console.WriteLine("DateTime on the server : " + dt);
+            //Console.WriteLine("Server time in particular to : " + location.Latitude + "," + location.Longitude);
+            //Console.WriteLine("TimeZone Id : " + result.TimeZoneId);
+            //Console.WriteLine("TimeZone Name : " + result.TimeZoneName);
+            //Console.WriteLine("Converted DateTime : " + result.DateTime);
+
+            result = googleTimeZone.GetTimeZoneByLocation(dt, location2);
             Console.WriteLine("DateTime on the server : " + dt);
-            Console.WriteLine("Server time in particular to : " + location);
-            Console.WriteLine("TimeZone Id : " + googleTimeZoneResult.TimeZoneId);
-            Console.WriteLine("TimeZone Name : " + googleTimeZoneResult.TimeZoneName);
-            Console.WriteLine("Converted DateTime : " + googleTimeZoneResult.DateTime);
+            Console.WriteLine("Server time in particular to : " + location2.Latitude + "," + location2.Longitude);
+            Console.WriteLine("TimeZone Id : " + result.TimeZoneId);
+            Console.WriteLine("TimeZone Name : " + result.TimeZoneName);
+            Console.WriteLine("Converted DateTime : " + result.DateTime);
+
+            Console.ReadKey();
         }
     }
 }
