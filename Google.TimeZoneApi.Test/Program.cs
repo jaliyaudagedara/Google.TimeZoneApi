@@ -6,7 +6,7 @@ namespace Google.TimeZoneApi.Example
     {
         static void Main(string[] args)
         {
-            GoogleTimeZone googleTimeZone = new GoogleTimeZone("AIzaSyCVGJtR2LgD5arGM_61hToUE2iNlb_VBfc");
+            GoogleTimeZone googleTimeZone = new GoogleTimeZone("AIzaSyCNijWGcrNwwlGAl2zUUsoo_Qb2C1Sx0vk");
 
 
             DateTime dt = DateTime.Now;
